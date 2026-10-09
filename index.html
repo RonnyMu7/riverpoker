@@ -46,4 +46,47 @@ document.getElementById('loginuser').value='Poker';document.querySelector('#logi
 login=function(){if(document.getElementById('loginuser').value==='Poker'&&document.getElementById('loginpass').value==='Riverclub77'){closeLogin();document.getElementById('siteview').classList.add('hidden');document.getElementById('adminview').classList.add('active');setTab('overview')}else toast('Неверный логин или пароль')};
 renderTours();renderLeaderboard();
 </script>
+
+<script>
+/* RIVER Supabase registration backend. Publishable keys are intended for browser use; database RLS must restrict access. */
+window.RIVER_SUPABASE_URL = window.RIVER_SUPABASE_URL || 'https://vpeomywcwjijxdkhgqnn.supabase.co';
+window.RIVER_SUPABASE_KEY = window.RIVER_SUPABASE_KEY || 'sb_publishable_XXAx6S6uWdW_FwR0bI8fl8A_-FzFdRxG';
+const riverSubmitSignupLocal = submitSignup;
+submitSignup = async function(){
+  const name=document.getElementById('signupname').value.trim();
+  const phone=document.getElementById('signupphone').value.trim();
+  const telegram=document.getElementById('signuptg').value.trim();
+  const tourId=document.getElementById('signuptour').value;
+  if(!name||!phone||!telegram||!tourId){toast('Заполни все обязательные поля');return}
+  if(!/^[+()\d\s.-]{7,20}$/.test(phone)){toast('Укажи корректный номер телефона');document.getElementById('signupphone').focus();return}
+  if(telegram.length<3){toast('Укажи Telegram');document.getElementById('signuptg').focus();return}
+  const ev=events.find(e=>e.id===Number(tourId));
+  if(!ev){toast('Выбери турнир из расписания');return}
+  const payload={name,phone,telegram,contact:'Телефон: '+phone+'; Telegram: '+telegram,event:ev.name,date:new Date().toISOString(),status:'Новая'};
+  try{
+    const response=await fetch(window.RIVER_SUPABASE_URL+'/rest/v1/river_requests',{
+      method:'POST',
+      headers:{'apikey':window.RIVER_SUPABASE_KEY,'Authorization':'Bearer '+window.RIVER_SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!response.ok){
+      const detail=await response.text();
+      console.error('RIVER request insert failed',response.status,detail);
+      toast(response.status===401||response.status===403?'База данных отклонила заявку. Проверь права доступа Supabase.':'Не удалось отправить заявку. Попробуй позже.');
+      return;
+    }
+    requests.unshift({id:Date.now(),...payload});
+    save('river_requests',requests);
+    closeSignup();
+    document.getElementById('signupname').value='';
+    document.getElementById('signupphone').value='';
+    document.getElementById('signuptg').value='';
+    toast('Заявка отправлена!');
+    if(document.getElementById('adminview').classList.contains('active'))renderAdmin();
+  }catch(error){
+    console.error('RIVER Supabase connection error',error);
+    toast('Нет соединения с базой. Заявка не отправлена.');
+  }
+};
+</script>
 </body></html>
