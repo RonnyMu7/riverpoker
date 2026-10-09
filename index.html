@@ -88,5 +88,7 @@ submitSignup = async function(){
     toast('Нет соединения с базой. Заявка не отправлена.');
   }
 };
+/* Keep only one Telegram field in the signup modal. */
+(()=>{const modal=document.getElementById('signupmodal');if(!modal)return;let found=false;modal.querySelectorAll('.field').forEach(field=>{const label=field.querySelector('label');if(label&&/^telegram(?:\\s|\\*)/i.test(label.textContent.trim())){if(found)field.remove();else found=true}})})();
 </script>
 </body></html>
