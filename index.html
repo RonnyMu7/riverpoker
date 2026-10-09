@@ -88,7 +88,7 @@ submitSignup = async function(){
     toast('Нет соединения с базой. Заявка не отправлена.');
   }
 };
-/* Keep only one Telegram field in the signup modal. */
-(()=>{const modal=document.getElementById('signupmodal');if(!modal)return;let found=false;modal.querySelectorAll('.field').forEach(field=>{const label=field.querySelector('label');if(label&&/^telegram(?:\\s|\\*)/i.test(label.textContent.trim())){if(found)field.remove();else found=true}})})();
+/* Keep exactly one phone field and one Telegram field in the signup modal. */
+(()=>{const modal=document.getElementById('signupmodal');if(!modal)return;let phoneFound=false,telegramFound=false;[...modal.querySelectorAll('.field')].forEach(field=>{const label=field.querySelector('label');if(!label)return;const text=label.textContent.trim().toLowerCase();if(text.startsWith('номер телефона')){if(phoneFound)field.remove();else phoneFound=true}else if(text.startsWith('telegram')){if(telegramFound)field.remove();else telegramFound=true}else if(text.startsWith('контакт (telegram'))field.remove()})})();
 </script>
 </body></html>
