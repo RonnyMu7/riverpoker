@@ -88,7 +88,7 @@ submitSignup = async function(){
     toast('Нет соединения с базой. Заявка не отправлена.');
   }
 };
-/* Keep exactly one phone field and one Telegram field in the signup modal. */
-(()=>{const modal=document.getElementById('signupmodal');if(!modal)return;let phoneFound=false,telegramFound=false;[...modal.querySelectorAll('.field')].forEach(field=>{const label=field.querySelector('label');if(!label)return;const text=label.textContent.trim().toLowerCase();if(text.startsWith('номер телефона')){if(phoneFound)field.remove();else phoneFound=true}else if(text.startsWith('telegram')){if(telegramFound)field.remove();else telegramFound=true}else if(text.startsWith('контакт (telegram'))field.remove()})})();
+/* Normalize signup contacts: remove legacy/duplicate contact fields, then add one phone and one Telegram field. */
+(()=>{const modal=document.getElementById('signupmodal');const nameInput=document.getElementById('signupname');if(!modal||!nameInput)return;modal.querySelectorAll('.field').forEach(field=>{const input=field.querySelector('input');const label=field.querySelector('label');const text=(label?.textContent||'').trim().toLowerCase();if((input&&['signupphone','signuptg','signupcontact'].includes(input.id))||/^(номер телефона|telegram|контакт\s*\()/i.test(text))field.remove()});const anchor=nameInput.closest('.field');anchor.insertAdjacentHTML('afterend','<div class="field"><label for="signupphone">Номер телефона *</label><input id="signupphone" type="tel" required autocomplete="tel" placeholder="+7 900 000-00-00"></div><div class="field"><label for="signuptg">Telegram *</label><input id="signuptg" required autocomplete="off" placeholder="@username или ссылка на профиль"></div>')})();
 </script>
 </body></html>
